@@ -1,25 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
 import { NoticeSearchStyled } from './styled';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../../../common/Button/Button';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const NoticeSearch = () => {
+    const title = useRef<HTMLInputElement>();
     const [startDate, setStartDate] = useState<string>();
     const [endDate, setEndDate] = useState<string>();
-    const title = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
-    const location = useLocation();
-
     useEffect(() => {
-        location.search && navigate(location.pathname, { replace: true });
+        window.location.search && navigate(window.location.pathname, { replace : true });
     }, [navigate]);
 
+    // 검색버튼 클릭 시 주소값 변경
     const handlerSearch = () => {
-        // 검색 버튼을 누르면, 조회가 된다.
-        const query: string[] = [];
-        !title.current?.value || query.push(`searchTitle=${title.current?.value}`);
-        !startDate || query.push(`startDate=${startDate}`);
-        !endDate || query.push(`endDate=${endDate}`);
+        const query:string[] = [];
+
+        !title.current.value || query.push(`searchTitle=${title.current.value}`);
+        !startDate || query.push(`searchStTitle=${startDate}`);
+        !endDate || query.push(`searchEdTitle=${endDate}`);
 
         const queryString = query.length > 0 ? `?${query.join('&')}` : '';
         navigate(`/react/board/notice.do${queryString}`);
