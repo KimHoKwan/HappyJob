@@ -3,7 +3,7 @@ import { StyledTable, StyledTd, StyledTh } from '../../../common/styled/StyledTa
 import { useEffect, useState } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import { useRecoilState } from 'recoil';
-import { modalState } from '../../../../stores/modalState';
+//import { modalState } from '../../../../stores/modalState';
 import { Protal } from '../../../common/potal/Portal';
 import { NoticeModal } from '../NoticeModal/NoticeModal';
 import { Button } from 'react-bootstrap';
