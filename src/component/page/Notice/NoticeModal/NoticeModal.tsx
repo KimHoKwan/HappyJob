@@ -21,6 +21,7 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
     const [userInfo] = useRecoilState<ILoginInfo>(loginInfoState);
     const [noticeDetail, setNoticeDetail] = useState<INoticeDetail>();
     const [imageUrl, setImageUrl] = useState<string>();
+    const [fileData, setFileData] = useState<File>();
     const title = useRef<HTMLInputElement>();
     const context = useRef<HTMLInputElement>();
 
@@ -39,6 +40,12 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
 
         if (detail) {
             setNoticeDetail(detail.detail);
+            const { fileExt, logicalPath } = detail.detail;
+            if(fileExt === "jpg" || fileExt === "gif" || fileExt === "png"){
+                setImageUrl(logicalPath);
+            } else{
+                setImageUrl('');
+            }
         }
 
         // 아래 axios 구문을 위에 api로 바꿈
@@ -67,6 +74,25 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
         // });
     };
 
+    // 파일 저장
+    const handlerFileSave = async () => {
+        const fileForm = new FormData();
+        const textData = {
+            title: title.current.value,
+            context: context.current.value,
+            loginId: userInfo.loginId,
+        };
+        fileData && fileForm.append('file', fileData);
+        fileForm.append('text', new Blob([JSON.stringify(textData)], {type: 'application/json'}));
+        const save = await postNoticeApi<IPostResponse>(Notice.getFileSave, fileForm);
+        if (save){
+            save.result === 'success' && onSuccess();
+        }
+        // axios.post('/board/noticeSaveBody.do', fileForm).then((res: AxiosResponse<IPostResponse>) => {
+        //     res.data.result === 'success' && onSuccess();
+        // });
+    }
+
     // 수정 기능
     const handlerUpdate = async () => {
         const param = {
@@ -82,6 +108,23 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
         // axios.post('/board/noticeUpdateBody.do', param).then((res: AxiosResponse<IPostResponse>) => {res.data.result === 'success' && onSuccess();
         // });
     };
+
+    // 파일 수정하기
+    const handlerFileUpdate = async () => {
+        const fileForm = new FormData();
+        const textData = {
+            title: title.current.value,
+            context: context.current.value,
+            loginId: userInfo.loginId,
+        };
+        fileData && fileForm.append('file', fileData);
+        fileForm.append('text', new Blob([JSON.stringify(textData)], {type: 'application/json'}));
+        const save = await postNoticeApi<IPostResponse>(Notice.getFileUpdate, fileForm);
+        if (save){
+            save.result === 'success' && onSuccess();
+        }
+    }
+    
 
     // 삭제 기능
     const handlerDelete = async () => {
@@ -107,7 +150,10 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
 
             if(fileExtension === "jpg" || fileExtension === "gif" || fileExtension === "png"){
                 setImageUrl(URL.createObjectURL(fileInfo[0]));
+            } else {
+                setImageUrl('');
             }
+            setFileData(fileInfo[0]);
         }
     };
 
@@ -115,7 +161,7 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
         <NoticeModalStyled>
             <div className="container">
                 <label>
-                    제목 :<input type="text" ref={title} defaultValue={noticeDetail?.title}></input>
+                    제목 : <input type="text" ref={title} defaultValue={noticeDetail?.title}></input>
                 </label>
                 <label>
                     내용 : <input type="text" ref={context} defaultValue={noticeDetail?.content}></input>
@@ -125,13 +171,18 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
                     파일 첨부하기
                 </label>
                 <div>
-                    <div>
-                        <label>미리보기</label>
-                        <img src={imageUrl} />
-                    </div>
+                    {imageUrl ? (
+                        <div>
+                            <label>미리보기</label>
+                            <img src={imageUrl} />
+                            {fileData?.name || noticeDetail.fileName}
+                        </div>
+                        ) : (
+                        <div>{fileData?.name}</div>
+                    )}
                 </div>
                 <div className={'button-container'}>
-                    <button onClick={noticeSeq ? handlerUpdate : handlerSave}>{noticeSeq ? '수정' : '등록'}</button>
+                    <button onClick={noticeSeq ? handlerUpdate : handlerFileSave }>{noticeSeq ? '수정' : '등록'}</button>
                     {noticeSeq && <button onClick={ handlerDelete }>삭제</button>}
                     <button onClick={handlerModal}>나가기</button>
                 </div>

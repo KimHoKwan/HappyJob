@@ -7,6 +7,9 @@ export const Notice = {
     getList: '/board/noticeListJson.do',
     getDetail: '/board/noticeDetailBody.do',
     getSave: '/board/noticeSaveBody.do',
+    getFileSave: '/board/noticeSaveFileForm.do',
+    getFileUpdate: '/board/noticeUpdatefileForm.do',
     getUpdate: '/board/noticeUpdateBody.do',
     getDelete: '/board/noticeDeleteBody.do',
+    getListBody: '/board/noticeListBody.do',
 };
