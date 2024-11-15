@@ -2,7 +2,7 @@ import { Modal } from 'react-bootstrap';
 import { NoticeModalStyled } from './styled';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import { modalState } from '../../../../stores/modalStatus';
-import { FC, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { loginInfoState } from '../../../../stores/userInfo';
 import { ILoginInfo } from '../../../../models/interface/store/userInfo';
 import axios, { AxiosHeaders, AxiosResponse } from 'axios';
@@ -20,6 +20,7 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
     const [modal, setModal] = useRecoilState<boolean>(modalState);
     const [userInfo] = useRecoilState<ILoginInfo>(loginInfoState);
     const [noticeDetail, setNoticeDetail] = useState<INoticeDetail>();
+    const [imageUrl, setImageUrl] = useState<string>();
     const title = useRef<HTMLInputElement>();
     const context = useRef<HTMLInputElement>();
 
@@ -96,6 +97,19 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
         //     .then((res: AxiosResponse<IPostResponse>) => {res.data.result === 'success' && onSuccess();
         // });
     };
+    
+    // 파일 미리보기
+    const handlerFile = (e: ChangeEvent<HTMLInputElement>) => {
+        const fileInfo = e.target.files
+        if(fileInfo?.length > 0) {
+            const fileInfoSplit = fileInfo[0].name.split('.');
+            const fileExtension = fileInfoSplit[1].toLowerCase();
+
+            if(fileExtension === "jpg" || fileExtension === "gif" || fileExtension === "png"){
+                setImageUrl(URL.createObjectURL(fileInfo[0]));
+            }
+        }
+    };
 
     return (
         <NoticeModalStyled>
@@ -106,14 +120,14 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
                 <label>
                     내용 : <input type="text" ref={context} defaultValue={noticeDetail?.content}></input>
                 </label>
-                파일 :<input type="file" id="fileInput" style={{ display: 'none' }}></input>
+                파일 :<input type="file" id="fileInput" style={{ display: 'none' }} onChange={handlerFile}></input>
                 <label className="img-label" htmlFor="fileInput">
                     파일 첨부하기
                 </label>
                 <div>
                     <div>
                         <label>미리보기</label>
-                        <img src="" />
+                        <img src={imageUrl} />
                     </div>
                 </div>
                 <div className={'button-container'}>

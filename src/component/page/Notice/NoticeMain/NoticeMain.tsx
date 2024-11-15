@@ -9,6 +9,7 @@ import { modalState } from '../../../../stores/modalStatus';
 import { INotice, INoticeListResponse } from '../../../../models/INotice';
 import { postNoticeApi } from '../../../../api/postNoticeApi';
 import { Notice } from '../../../../api/api';
+import { PageNavigate } from '../../../common/pageNavigation/PageNavigate';
 
 export const NoticeMain = () => {
     const { search } = useLocation();
@@ -17,6 +18,7 @@ export const NoticeMain = () => {
     const [modal, setModal] = useRecoilState<boolean>(modalState); // recoil에 저장된 state
     //const [modal2, setModal2] = useState<boolean>(false); // 컴포넌트에서 만든 state
     const [index, setIndex] = useState<number>();
+    const [cPage, setCpage] = useState<number>();
     
     useEffect(() => {
         searchNoticeList();
@@ -32,6 +34,7 @@ export const NoticeMain = () => {
         if (searchList) {
             setNoticeList(searchList.notice);
             setListCount(searchList.noticeCnt);
+            setCpage(currentPage);
         }
 
         // axios.post("/board/noticeListJson.do", searchParam)
@@ -53,7 +56,7 @@ export const NoticeMain = () => {
 
     return (
         <>
-            총 갯수 : {listCount} 현재 페이지 : 0
+            총 갯수 : {listCount} 현재 페이지 : {cPage}
             <StyledTable>
                 <thead>
                     <tr>
@@ -82,6 +85,7 @@ export const NoticeMain = () => {
                     )}       
                 </tbody>
             </StyledTable>
+            <PageNavigate totalItemsCount={listCount} onChange={searchNoticeList} activePage={cPage} itemsCountPerPage={5}></PageNavigate>
             {modal && (
                 <Portal>
                     <NoticeModal onSuccess={onPostSuccess} noticeSeq={index} setNoticeSeq={setIndex}/>
