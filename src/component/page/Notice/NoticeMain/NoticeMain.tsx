@@ -11,6 +11,7 @@ import { postNoticeApi } from '../../../../api/postNoticeApi';
 import { Notice } from '../../../../api/api';
 import { PageNavigate } from '../../../common/pageNavigation/PageNavigate';
 import { NoticeContext } from '../../../../api/provider/NoticeProvier';
+import { URLSearchParams } from 'url';
 
 export const NoticeMain = () => {
     const { search } = useLocation();
@@ -97,8 +98,10 @@ export const NoticeMain = () => {
                     {noticeList?.length > 0 ? (
                         noticeList?.map((notice) => {
                             return (
-                                // <tr key={notice.noticeIdx} onClick={() => handlerModal(notice.noticeIdx)}>
-                                <tr 
+                                // 모달창 띄움
+                                <tr key={notice.noticeIdx} onClick={() => handlerModal(notice.noticeIdx)}>
+                                
+                                {/* <tr 
                                     key={notice.noticeIdx} 
                                     onClick={() => {
                                         // navigate(notice.noticeIdx.toString());
@@ -113,7 +116,9 @@ export const NoticeMain = () => {
                                             state: { title: notice.title },
                                         });
                                     }}
-                                >
+                                > */}
+                                
+
                                     <StyledTd>{notice.noticeIdx}</StyledTd>
                                     <StyledTd>{notice.title}</StyledTd>
                                     <StyledTd>{notice.author}</StyledTd>

@@ -5,7 +5,7 @@ import { modalState } from '../../../../stores/modalStatus';
 import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { loginInfoState } from '../../../../stores/userInfo';
 import { ILoginInfo } from '../../../../models/interface/store/userInfo';
-import axios, { AxiosHeaders, AxiosResponse } from 'axios';
+import axios, { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { IDetailResponse, INoticeDetail, INoticeListResponse, IPostResponse } from '../../../../models/INotice';
 import { postNoticeApi } from '../../../../api/postNoticeApi';
 import { Notice } from '../../../../api/api';
@@ -115,7 +115,7 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
         const textData = {
             title: title.current.value,
             context: context.current.value,
-            loginId: userInfo.loginId,
+            noticeSeq,
         };
         fileData && fileForm.append('file', fileData);
         fileForm.append('text', new Blob([JSON.stringify(textData)], {type: 'application/json'}));
@@ -157,6 +157,29 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
         }
     };
 
+    const downloadFile = async () => {
+        const param = new URLSearchParams();
+        param.append('noticeSeq', noticeSeq.toString());
+
+        const postAction: AxiosRequestConfig = {
+            url: '/board/noticeDownload.do',
+            method: 'POST',
+            data: param,
+            responseType: 'blob',
+        }
+
+        await axios(postAction).then((res) => {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', noticeDetail?.fileName as string);
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+        });
+    };
+
     return (
         <NoticeModalStyled>
             <div className="container">
@@ -170,7 +193,7 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
                 <label className="img-label" htmlFor="fileInput">
                     파일 첨부하기
                 </label>
-                <div>
+                <div onClick={downloadFile}>
                     {imageUrl ? (
                         <div>
                             <label>미리보기</label>
@@ -182,7 +205,7 @@ export const NoticeModal: FC<INoticeModalProps> = ({ onSuccess, noticeSeq, setNo
                     )}
                 </div>
                 <div className={'button-container'}>
-                    <button onClick={noticeSeq ? handlerUpdate : handlerFileSave }>{noticeSeq ? '수정' : '등록'}</button>
+                    <button onClick={noticeSeq ? handlerFileUpdate : handlerFileSave }>{noticeSeq ? '수정' : '등록'}</button>
                     {noticeSeq && <button onClick={ handlerDelete }>삭제</button>}
                     <button onClick={handlerModal}>나가기</button>
                 </div>
